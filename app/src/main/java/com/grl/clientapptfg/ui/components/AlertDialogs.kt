@@ -142,7 +142,7 @@ fun ConfirmationDialogWithNegative(
         ConstraintLayout(
             Modifier
                 .fillMaxWidth()
-                .height(320.dp)
+                .height(350.dp)
                 .background(granate, RoundedCornerShape(20.dp))
         ) {
             val (titleText, description, bConfirm, bDenegate, divider) = createRefs()
@@ -155,7 +155,7 @@ fun ConfirmationDialogWithNegative(
                 style = TextStyle(lineHeight = 45.sp),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .padding(horizontal = 10.dp)
+                    .padding(horizontal = 8.dp)
                     .padding(top = 10.dp)
                     .constrainAs(titleText) {
                         top.linkTo(parent.top)
