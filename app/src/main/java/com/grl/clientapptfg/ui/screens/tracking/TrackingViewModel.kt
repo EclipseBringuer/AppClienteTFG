@@ -32,6 +32,10 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
     private val _orderOfEvent = MutableLiveData<OrderModel>()
     val orderOfEvent: LiveData<OrderModel> = _orderOfEvent
 
+    init {
+        _isFirst.value = true
+    }
+
     fun changeIsFirst(boolean: Boolean) {
         _isFirst.value = boolean
     }
@@ -56,30 +60,11 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
         _orderEvent.value = false
     }
 
-    /*fun getOrdersByUser(id: Int) {
-        if (_isFirst.value!!) {
-            _isLoading.value = true
-        }
-        viewModelScope.launch {
-            try {
-                _orders.value = orderRepository.getOrdersByUser(id)
-                if (_isFirst.value!!) {
-                    _orderSelected.value = _orders.value!![0]
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                if (_isFirst.value!!) {
-                    _isLoading.value = false
-                    _isFirst.value = false
-                }
-            }
-        }
-    }*/
     fun getOrdersByUser(id: Int) {
         if (_isFirst.value == true) {
             _isLoading.value = true
         }
+
         viewModelScope.launch {
             try {
                 // Obtenemos los nuevos pedidos
@@ -89,25 +74,10 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
                     orderRepository.getOrdersByUser(id)
                 }
 
-                // Comparamos con los pedidos actuales
-                _orders.value?.let { currentOrders ->
-                    newOrders.forEach { newOrder ->
-                        // Verificamos si el pedido ya está en la lista actual
-                        val existingOrder = currentOrders.find { it.id == newOrder.id }
-                        if (existingOrder != null) {
-                            // Si el pedido está cancelado o completado, mostramos un diálogo y eliminamos de la lista
-                            if (newOrder.state == Constants.CANCELED || newOrder.state == Constants.COMPLETED) {
-                                showDismissDialog(newOrder)
-                                _orders.value = currentOrders.filterNot { it.id == newOrder.id }
-                            }
-                        }
-                    }
-                }
+                // Actualizamos los pedidos actuales
+                updateOrders(newOrders)
 
-                // Actualizamos la lista de pedidos
-                _orders.value = newOrders
-
-                // Si es la primera vez, seleccionamos el primer pedido
+                // Seleccionamos el primer pedido si es la primera vez
                 if (_isFirst.value == true) {
                     _orderSelected.value = _orders.value?.firstOrNull()
                 }
@@ -119,6 +89,33 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
                     _isFirst.value = false
                 }
             }
+        }
+    }
+
+    private fun updateOrders(newOrders: List<OrderModel>) {
+        _orders.value?.let { currentOrders ->
+            val updatedOrders = currentOrders.toMutableList()
+            newOrders.forEach { newOrder ->
+                val existingOrder = currentOrders.find { it.id == newOrder.id }
+                if (existingOrder != null) {
+                    handleExistingOrder(newOrder, existingOrder, updatedOrders)
+                } else if (newOrder.state != Constants.CANCELED && newOrder.state != Constants.COMPLETED) {
+                    updatedOrders.add(newOrder)
+                }
+            }
+            _orders.value = updatedOrders
+        } ?: run {
+            _orders.value = newOrders
+        }
+    }
+
+    private fun handleExistingOrder(newOrder: OrderModel, existingOrder: OrderModel, updatedOrders: MutableList<OrderModel>) {
+        if (newOrder.state == Constants.CANCELED || newOrder.state == Constants.COMPLETED) {
+            showDismissDialog(newOrder)
+            updatedOrders.remove(existingOrder)
+        } else {
+            val index = updatedOrders.indexOf(existingOrder)
+            updatedOrders[index] = newOrder
         }
     }
 
