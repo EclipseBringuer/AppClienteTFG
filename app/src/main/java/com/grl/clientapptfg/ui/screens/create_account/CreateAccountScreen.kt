@@ -1,5 +1,6 @@
 package com.grl.clientapptfg.ui.screens.create_account
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -272,5 +273,8 @@ fun CreateAccountScreen(
                 )
             }
         }
+    }
+    BackHandler {
+        profileViewModel.setScreenState(1)
     }
 }
