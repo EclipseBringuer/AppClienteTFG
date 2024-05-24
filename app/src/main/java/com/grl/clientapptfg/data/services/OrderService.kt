@@ -21,4 +21,11 @@ class OrderService @Inject constructor(private val orderClient: OrderClient) {
             response.body()!!
         }
     }
+
+    suspend fun getAllNotCompleted(userId: Int): List<OrderModel> {
+        return withContext(Dispatchers.IO) {
+            val response = orderClient.getAllNotCompleted(Constants.TOKEN, userId)
+            response.body()!!
+        }
+    }
 }

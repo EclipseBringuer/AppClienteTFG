@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import com.grl.clientapptfg.R
 import com.grl.clientapptfg.core.Constants
 import com.grl.clientapptfg.core.UserSession
 import com.grl.clientapptfg.data.models.OrderModel
+import com.grl.clientapptfg.ui.components.ConfirmationDialog
 import com.grl.clientapptfg.ui.components.LogoApp
 import com.grl.clientapptfg.ui.components.ProgressBarDialog
 import com.grl.clientapptfg.ui.theme.black
@@ -46,13 +48,15 @@ import kotlinx.coroutines.delay
 @Composable
 fun TrackingScreen(trackingViewModel: TrackingViewModel) {
     val isFirst = trackingViewModel.isFirst.observeAsState(initial = true)
-    if (isFirst.value){
+    if (isFirst.value) {
         trackingViewModel.changeIsFirst(true)
     }
     val aladinFont = Util.loadFontFamilyFromAssets()
-    val isLoading = trackingViewModel.isLoading.observeAsState(initial = false)
-    val orders = trackingViewModel.orders.observeAsState(initial = listOf())
-    val orderSelected = trackingViewModel.orderSelected.observeAsState(
+    val isLoading by trackingViewModel.isLoading.observeAsState(initial = false)
+    val isOrderEvent by trackingViewModel.orderEvent.observeAsState(initial = false)
+    val orderOfEvent by trackingViewModel.orderOfEvent.observeAsState()
+    val orders by trackingViewModel.orders.observeAsState(initial = listOf())
+    val orderSelected by trackingViewModel.orderSelected.observeAsState(
         initial = OrderModel(
             price = 0.0,
             paymentMethod = "",
@@ -63,17 +67,29 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
         )
     )
 
-    if (isLoading.value) {
+    if (isLoading) {
         ProgressBarDialog()
     }
 
     if (UserSession.getUser() != null) {
         LaunchedEffect(Unit) {
-            while(true){
+            while (true) {
                 trackingViewModel.getOrdersByUser(UserSession.getUser()!!.id)
                 delay(8000L)
             }
         }
+    }
+
+    if (isOrderEvent) {
+        ConfirmationDialog(
+            onClick = { trackingViewModel.closeOrderEvent() },
+            title =
+            if (orderOfEvent!!.state == Constants.COMPLETED)
+                "El pedido ${orderOfEvent!!.id}Nº esta completado"
+            else
+                "El pedido ${orderOfEvent!!.id}Nº se ha cancelado",
+            text = "Pulsa aceptar para continuar"
+        )
     }
 
     ConstraintLayout(
@@ -106,7 +122,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             .clip(CircleShape)
             .background(
                 color =
-                if (orderSelected.value.state != Constants.CANCELED && orderSelected.value.state != "") {
+                if (orderSelected.state != Constants.CANCELED && orderSelected.state != "") {
                     mostaza
                 } else {
                     white
@@ -118,7 +134,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             })
         HorizontalDivider(
             thickness = 5.dp,
-            color = if (orderSelected.value.state == Constants.PREPARATION || orderSelected.value.state == Constants.DELIVERY) {
+            color = if (orderSelected.state == Constants.PREPARATION || orderSelected.state == Constants.DELIVERY) {
                 mostaza
             } else {
                 white
@@ -134,7 +150,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             .size(35.dp)
             .clip(CircleShape)
             .background(
-                if (orderSelected.value.state == Constants.PREPARATION || orderSelected.value.state == Constants.DELIVERY) {
+                if (orderSelected.state == Constants.PREPARATION || orderSelected.state == Constants.DELIVERY) {
                     mostaza
                 } else {
                     white
@@ -147,7 +163,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             })
         HorizontalDivider(
             thickness = 5.dp,
-            color = if (orderSelected.value.state == Constants.DELIVERY) {
+            color = if (orderSelected.state == Constants.DELIVERY) {
                 mostaza
             } else {
                 white
@@ -164,7 +180,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             .size(35.dp)
             .clip(CircleShape)
             .background(
-                if (orderSelected.value.state == Constants.DELIVERY) {
+                if (orderSelected.state == Constants.DELIVERY) {
                     mostaza
                 } else {
                     white
@@ -176,14 +192,14 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
             })
         Text(text = "Pendiente",
             fontFamily = aladinFont,
-            color = if (orderSelected.value.state == Constants.PENDING) {
+            color = if (orderSelected.state == Constants.PENDING) {
                 mostaza
             } else {
                 white
             },
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
-            fontWeight = if (orderSelected.value.state == Constants.PENDING) {
+            fontWeight = if (orderSelected.state == Constants.PENDING) {
                 FontWeight.Bold
             } else {
                 FontWeight.Normal
@@ -197,14 +213,14 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
                 })
         Text(text = "Preparación",
             fontFamily = aladinFont,
-            color = if (orderSelected.value.state == Constants.PREPARATION) {
+            color = if (orderSelected.state == Constants.PREPARATION) {
                 mostaza
             } else {
                 white
             },
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
-            fontWeight = if (orderSelected.value.state == Constants.PREPARATION) {
+            fontWeight = if (orderSelected.state == Constants.PREPARATION) {
                 FontWeight.Bold
             } else {
                 FontWeight.Normal
@@ -218,14 +234,14 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
                 })
         Text(text = "Reparto",
             fontFamily = aladinFont,
-            color = if (orderSelected.value.state == Constants.DELIVERY) {
+            color = if (orderSelected.state == Constants.DELIVERY) {
                 mostaza
             } else {
                 white
             },
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
-            fontWeight = if (orderSelected.value.state == Constants.DELIVERY) {
+            fontWeight = if (orderSelected.state == Constants.DELIVERY) {
                 FontWeight.Bold
             } else {
                 FontWeight.Normal
@@ -247,7 +263,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
                     height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                 }) {
-            if (orders.value.isEmpty()) {
+            if (orders.isEmpty()) {
                 item {
                     Text(
                         text = "No hay pedidos en curso",
@@ -265,7 +281,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
                         color = mostaza
                     )
                 }
-                items(orders.value) { order ->
+                items(orders) { order ->
                     Card(
                         border = BorderStroke(3.dp, mostaza),
                         onClick = {
@@ -301,7 +317,7 @@ fun TrackingScreen(trackingViewModel: TrackingViewModel) {
                                         bottom.linkTo(parent.bottom)
                                     }
                             )
-                            if (order == orderSelected.value) {
+                            if (order == orderSelected) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.morito_blanco),
                                     contentDescription = "morito icono",

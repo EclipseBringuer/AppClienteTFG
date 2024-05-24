@@ -19,4 +19,10 @@ interface OrderClient {
         @Query("token") token: String,
         @Query("id") id: Int
     ): Response<List<OrderModel>>
+
+    @GET("order/getAllNotCompletedById")
+    suspend fun getAllNotCompleted(
+        @Query("token") token: String,
+        @Query("id") id: Int
+    ): Response<List<OrderModel>>
 }

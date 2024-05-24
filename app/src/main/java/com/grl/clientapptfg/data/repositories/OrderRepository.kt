@@ -12,4 +12,8 @@ class OrderRepository @Inject constructor(private val api: OrderService) {
     suspend fun getOrdersByUser(id: Int): List<OrderModel> {
         return api.getOrdersByUser(id)
     }
+
+    suspend fun getAllNotCompleted(userId: Int): List<OrderModel> {
+        return api.getAllNotCompleted(userId)
+    }
 }
