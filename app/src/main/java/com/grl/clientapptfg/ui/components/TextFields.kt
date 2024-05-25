@@ -33,7 +33,8 @@ fun TextFieldPersonalized(
     modifier: Modifier,
     placeholder: String,
     keyboardType: KeyboardType,
-    imeAction: ImeAction
+    imeAction: ImeAction,
+    enabled: Boolean = true,
 ) {
     OutlinedTextField(
         value = value,
@@ -41,7 +42,11 @@ fun TextFieldPersonalized(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         singleLine = true,
-        textStyle = TextStyle(fontSize = 20.sp, color = black),
+        textStyle = TextStyle(
+            fontSize = 28.sp,
+            color = if (enabled) black else white,
+            fontFamily = Util.loadFontFamilyFromAssets()
+        ),
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction
@@ -56,9 +61,55 @@ fun TextFieldPersonalized(
         }, colors = TextFieldDefaults.colors(
             focusedContainerColor = white,
             unfocusedContainerColor = white,
-            disabledContainerColor = white,
-            focusedIndicatorColor = mostaza
-        )
+            disabledContainerColor = black,
+            focusedIndicatorColor = mostaza,
+            disabledIndicatorColor = mostaza
+        ),
+        enabled = enabled
+    )
+}
+
+@Composable
+fun TextAreaPersonalized(
+    value: String,
+    function: (String) -> Unit,
+    modifier: Modifier,
+    placeholder: String,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    enabled: Boolean = true,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = { function(it) },
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        singleLine = false,
+        textStyle = TextStyle(
+            fontSize = 35.sp,
+            color = if (enabled) black else white,
+            fontFamily = Util.loadFontFamilyFromAssets()
+        ),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction
+        ),
+        placeholder = {
+            Text(
+                text = placeholder,
+                fontSize = 25.sp,
+                fontFamily = Util.loadFontFamilyFromAssets(),
+                color = PurpleGrey80
+            )
+        }, colors = TextFieldDefaults.colors(
+            focusedContainerColor = white,
+            unfocusedContainerColor = white,
+            disabledContainerColor = black,
+            focusedIndicatorColor = mostaza,
+            disabledIndicatorColor = mostaza
+        ),
+        enabled = enabled,
+        maxLines = 10,
     )
 }
 
