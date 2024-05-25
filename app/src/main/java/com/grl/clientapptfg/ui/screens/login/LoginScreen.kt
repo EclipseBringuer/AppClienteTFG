@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,13 +42,13 @@ import com.grl.clientapptfg.utils.Util
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewModel) {
-    val email = loginViewModel.email.observeAsState("")
-    val password = loginViewModel.password.observeAsState("")
-    val visibility = loginViewModel.isVisible.observeAsState(initial = false)
-    val isLoginEnable = loginViewModel.isLoginEnable.observeAsState(initial = false)
-    val isLoading = loginViewModel.isLoading.observeAsState(initial = false)
-    val logedIsBad = loginViewModel.logedIsBad.observeAsState(initial = false)
-    val dividerText = loginViewModel.dividerText.observeAsState(initial = "O")
+    val email by loginViewModel.email.observeAsState("")
+    val password by loginViewModel.password.observeAsState("")
+    val visibility by loginViewModel.isVisible.observeAsState(initial = false)
+    val isLoginEnable by loginViewModel.isLoginEnable.observeAsState(initial = false)
+    val isLoading by loginViewModel.isLoading.observeAsState(initial = false)
+    val logedIsBad by loginViewModel.logedIsBad.observeAsState(initial = false)
+    val dividerText by loginViewModel.dividerText.observeAsState(initial = "O")
     val aladinFont = Util.loadFontFamilyFromAssets()
     ConstraintLayout(
         Modifier
@@ -58,7 +59,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
         val topGuide = createGuidelineFromTop(0.03f)
         val startGuide = createGuidelineFromStart(0.05f)
         val endGuide = createGuidelineFromEnd(0.05f)
-        if (isLoading.value) {
+        if (isLoading) {
             ProgressBarDialog()
         }
         LogoApp(modifier = Modifier.constrainAs(appImage) {
@@ -115,8 +116,8 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
                     top.linkTo(newAcc.bottom)
                     start.linkTo(startGuide)
                     end.linkTo(endGuide)
-                }, text = dividerText.value,
-            color = logedIsBad.value
+                }, text = dividerText,
+            color = logedIsBad
         )
         Column(Modifier.constrainAs(fields) {
             top.linkTo(divider.bottom)
@@ -124,10 +125,10 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
             end.linkTo(endGuide)
         }) {
             TextFieldPersonalized(
-                value = email.value,
+                value = email,
                 function = {
                     loginViewModel.setEmail(it)
-                    loginViewModel.enableLogin(email.value, password.value)
+                    loginViewModel.enableLogin(email, password)
                 },
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
@@ -139,21 +140,21 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
                 ImeAction.Next
             )
             TextFieldForPasswordPersonalized(
-                value = password.value,
+                value = password,
                 changeText = {
                     loginViewModel.setPassword(it)
-                    loginViewModel.enableLogin(email.value, password.value)
+                    loginViewModel.enableLogin(email, password)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .height(70.dp),
                 imeAction = ImeAction.Default,
-                isVisible = visibility.value,
-                changeVisibility = { loginViewModel.changeVisibility(visibility.value) }
+                isVisible = visibility,
+                changeVisibility = { loginViewModel.changeVisibility(visibility) }
             )
             Text(
-                text = "La contraseña tiene ${password.value.length} caracteres de los 7 mínimos",
+                text = "La contraseña tiene ${password.length} caracteres de los 7 mínimos",
                 Modifier
                     .padding(horizontal = 28.dp)
                     .padding(bottom = 60.dp), fontFamily = aladinFont, color = mostaza
@@ -176,7 +177,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
                     disabledContainerColor = mostazaSoft,
                     disabledContentColor = blackSoft
                 ),
-                enabled = isLoginEnable.value
+                enabled = isLoginEnable
             ) {
                 Text(
                     text = "Iniciar Sesión",
