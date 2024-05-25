@@ -275,6 +275,7 @@ fun CreateAccountScreen(
         }
     }
     BackHandler {
+        createAccountViewModel.cleanFields()
         profileViewModel.setScreenState(1)
     }
 }
