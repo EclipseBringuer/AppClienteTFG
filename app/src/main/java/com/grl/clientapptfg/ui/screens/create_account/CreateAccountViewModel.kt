@@ -112,7 +112,6 @@ class CreateAccountViewModel @Inject constructor(private val userRepository: Use
                 )
                 user = userRepository.createNewUser(user)
                 if (user.id != 0) {
-                    UserSession.setUser(user)
                     cleanFields()
                 }
                 onCreateSucces(user.id != 0)
