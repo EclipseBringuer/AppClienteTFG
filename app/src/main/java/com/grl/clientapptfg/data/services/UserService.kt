@@ -21,4 +21,12 @@ class UserService @Inject constructor(private val userClient: UserClient) {
             response.body()!!
         }
     }
+
+    suspend fun updateUser(updatedUser: UserModel): UserModel {
+        return withContext(Dispatchers.IO) {
+            val response = userClient.updateUser(Constants.TOKEN, updatedUser)
+            println()
+            response.body()!!
+        }
+    }
 }

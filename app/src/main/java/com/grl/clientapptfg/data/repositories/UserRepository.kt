@@ -12,4 +12,8 @@ class UserRepository @Inject constructor(private val api: UserService) {
     suspend fun createNewUser(newUser: UserModel): UserModel {
         return api.createNewUser(newUser)
     }
+
+    suspend fun updateUser(updatedUser: UserModel): UserModel {
+        return api.updateUser(updatedUser)
+    }
 }
