@@ -47,10 +47,6 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun TrackingScreen(trackingViewModel: TrackingViewModel) {
-    val isFirst = trackingViewModel.isFirst.observeAsState(initial = true)
-    if (isFirst.value) {
-        trackingViewModel.changeIsFirst(true)
-    }
     val aladinFont = Util.loadFontFamilyFromAssets()
     val isLoading by trackingViewModel.isLoading.observeAsState(initial = false)
     val isOrderEvent by trackingViewModel.orderEvent.observeAsState(initial = false)

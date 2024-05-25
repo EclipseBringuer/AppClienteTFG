@@ -36,10 +36,6 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
         _isFirst.value = true
     }
 
-    fun changeIsFirst(boolean: Boolean) {
-        _isFirst.value = boolean
-    }
-
     fun changeOrderSelected(order: OrderModel) {
         _orderSelected.value = order
     }
@@ -64,7 +60,6 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
         if (_isFirst.value == true) {
             _isLoading.value = true
         }
-
         viewModelScope.launch {
             try {
                 // Obtenemos los nuevos pedidos
@@ -73,12 +68,10 @@ class TrackingViewModel @Inject constructor(private val orderRepository: OrderRe
                 } else {
                     orderRepository.getOrdersByUser(id)
                 }
-
                 // Actualizamos los pedidos actuales
                 updateOrders(newOrders)
-
-                // Seleccionamos el primer pedido si es la primera vez
-                if (_isFirst.value == true) {
+                // Seleccionamos el primer pedido si es la primera vez y la lista no está vacía
+                if (_isFirst.value == true && _orders.value!!.isNotEmpty()) {
                     _orderSelected.value = _orders.value?.firstOrNull()
                 }
             } catch (e: Exception) {
