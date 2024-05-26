@@ -186,7 +186,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
                     fontWeight = FontWeight.Bold
                 )
             }
-            Text(
+            /*Text(
                 text = "¿Has olvidado tu contraseña?",
                 Modifier
                     .align(Alignment.CenterHorizontally)
@@ -197,7 +197,7 @@ fun LoginScreen(loginViewModel: LoginViewModel, profileViewModel: ProfileViewMod
                 fontFamily = aladinFont,
                 textDecoration = TextDecoration.Underline,
                 color = white
-            )
+            )*/
         }
     }
 }
